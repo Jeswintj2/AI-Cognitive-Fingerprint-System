@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Dashboard - CogniPrint{% endblock %}
+
+{% block content %}
+<style>
+    .kpi-number { font-weight: 800 !important; margin: 0 !important; font-size: 36px !important; line-height: 1.1 !important; }
+    .kpi-number.blue { color: #1e40af !important; }
+    .kpi-number.green { color: #15803d !important; }
+    .kpi-number.red { color: #dc2626 !important; }
+    .kpi-number.purple { color: #7c3aed !important; }
+    .kpi-label { color: #64748b !important; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .section-heading { color: #111827 !important; font-weight: 700 !important; margin: 0 !important; }
+    .quick-tile { display: block; border-radius: 14px; padding: 24px 20px; text-decoration: none !important; transition: transform 0.2s; }
+    .quick-tile:hover { transform: translateY(-3px); }
+    .quick-tile h6 { font-weight: 700 !important; margin-bottom: 4px !important; }
+    .quick-tile p { color: #6b7280 !important; font-size: 12px; margin: 0; }
+</style>
+
+<div class="page-header" style="padding: 180px 0 40px; background: #f9fafb; position: relative; z-index: 1;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 style="color: #111827 !important; font-weight: 800 !important; margin-bottom: 6px !important;">Welcome back, <span style="color: #6366f1 !important;">{{ request.user.username }}</span></h2>
+                <p style="color: #6b7280; font-size: 16px; margin: 0;">{{ request.user.email }} &bull; Standard User</p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <a href="{% url 'user_upload_document' %}" class="btn" style="background: linear-gradient(135deg, #6366f1, #818cf8); color: #fff !important; border: none; border-radius: 14px; padding: 12px 28px; font-weight: 600; font-size: 15px;">
+                    + Upload Document
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section style="padding: 40px 0 60px;">
+    <div class="container">
+
+        <!-- KPI Stats Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-6">
+                <div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1px solid #bfdbfe; border-radius: 18px; padding: 28px 24px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -10px; right: -10px; width: 70px; height: 70px; background: rgba(59,130,246,0.1); border-radius: 50%;"></div>
+                    <p class="kpi-label">Total Documents</p>
+                    <div class="kpi-number blue">{{ stats.total_docs }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0; border-radius: 18px; padding: 28px 24px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -10px; right: -10px; width: 70px; height: 70px; background: rgba(34,197,94,0.1); border-radius: 50%;"></div>
+                    <p class="kpi-label">Verified</p>
+                    <div class="kpi-number green">{{ stats.verified_docs }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div style="background: linear-gradient(135deg, #fef2f2, #fecaca); border: 1px solid #fca5a5; border-radius: 18px; padding: 28px 24px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -10px; right: -10px; width: 70px; height: 70px; background: rgba(239,68,68,0.1); border-radius: 50%;"></div>
+                    <p class="kpi-label">Tampered</p>
+                    <div class="kpi-number red">{{ stats.tampered_docs }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div style="background: linear-gradient(135deg, #faf5ff, #e9d5ff); border: 1px solid #d8b4fe; border-radius: 18px; padding: 28px 24px; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -10px; right: -10px; width: 70px; height: 70px; background: rgba(147,51,234,0.1); border-radius: 50%;"></div>
+                    <p class="kpi-label">Shared With Me</p>
+                    <div class="kpi-number purple">{{ stats.shared_with_me }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Activity + Quick Actions -->
+        <div class="row g-4 mb-4">
+            <!-- Pending Activity -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm" style="border-radius: 18px; overflow: hidden; height: 100%;">
+                    <div class="card-header bg-white border-bottom p-4">
+                        <h6 class="section-heading">Pending Activity</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+                            <span style="color: #475569; font-weight: 500;">Share Requests</span>
+                            <span style="background: {% if stats.pending_shares > 0 %}rgba(245,158,11,0.15){% else %}rgba(34,197,94,0.1){% endif %}; color: {% if stats.pending_shares > 0 %}#d97706{% else %}#15803d{% endif %}; padding: 4px 14px; border-radius: 20px; font-weight: 700; font-size: 14px;">{{ stats.pending_shares }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+                            <span style="color: #475569; font-weight: 500;">Retrieval Requests</span>
+                            <span style="background: {% if stats.pending_retrievals > 0 %}rgba(245,158,11,0.15){% else %}rgba(34,197,94,0.1){% endif %}; color: {% if stats.pending_retrievals > 0 %}#d97706{% else %}#15803d{% endif %}; padding: 4px 14px; border-radius: 20px; font-weight: 700; font-size: 14px;">{{ stats.pending_retrievals }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0;">
+                            <span style="color: #475569; font-weight: 500;">Processing</span>
+                            <span style="background: rgba(99,102,241,0.1); color: #6366f1; padding: 4px 14px; border-radius: 20px; font-weight: 700; font-size: 14px;">{{ stats.processed_docs }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm" style="border-radius: 18px; overflow: hidden; height: 100%;">
+                    <div class="card-header bg-white border-bottom p-4">
+                        <h6 class="section-heading">Quick Actions</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <a href="{% url 'user_upload_document' %}" class="quick-tile" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0;">
+                                    <div style="font-size: 28px; margin-bottom: 10px;">&#128196;</div>
+                                    <h6 style="color: #15803d !important;">Upload Document</h6>
+                                    <p>Securely upload & fingerprint</p>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{% url 'user_my_documents' %}" class="quick-tile" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1px solid #bfdbfe;">
+                                    <div style="font-size: 28px; margin-bottom: 10px;">&#128194;</div>
+                                    <h6 style="color: #1e40af !important;">My Documents</h6>
+                                    <p>View, verify & manage files</p>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{% url 'user_shared_with_me' %}" class="quick-tile" style="background: linear-gradient(135deg, #faf5ff, #e9d5ff); border: 1px solid #d8b4fe;">
+                                    <div style="font-size: 28px; margin-bottom: 10px;">&#128101;</div>
+                                    <h6 style="color: #7c3aed !important;">Shared With Me</h6>
+                                    <p>View shared documents</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="border-radius: 18px; overflow: hidden;">
+                    <div class="card-header bg-white border-bottom p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="section-heading">Recent Activity</h6>
+                            <a href="{% url 'user_audit_logs' %}" class="btn btn-sm" style="background: rgba(99,102,241,0.1); color: #6366f1 !important; border: 1px solid #6366f1; border-radius: 10px; font-weight: 600; padding: 6px 16px; font-size: 13px;">View All</a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        {% for log in recent_logs %}
+                        <div style="display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid #f1f5f9;">
+                            <div style="width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: {% if 'Tamper' in log.action %}#ef4444{% elif 'Download' in log.action %}#3b82f6{% elif 'Upload' in log.action %}#10b981{% elif 'Share' in log.action %}#8b5cf6{% else %}#6b7280{% endif %};"></div>
+                            <div style="flex: 1; min-width: 0;">
+                                <p style="color: #1e293b !important; font-weight: 500; margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ log.action }}</p>
+                            </div>
+                            <div style="flex-shrink: 0;">
+                                <span style="color: #94a3b8; font-size: 12px; font-weight: 500;">{{ log.timestamp|timesince }} ago</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div style="padding: 40px; text-align: center; color: #94a3b8;">
+                            <p style="margin: 0; color: #94a3b8 !important;">No activity yet. Upload your first document to get started.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block footer %}{% endblock %}

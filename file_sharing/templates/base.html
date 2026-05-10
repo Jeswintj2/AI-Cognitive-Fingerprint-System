@@ -1,0 +1,348 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Meta -->
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+	<meta name="description" content="CogniPrint - AI Cognitive Fingerprint System for secure document sharing and tamper detection.">
+	<meta name="keywords" content="AI, cognitive fingerprint, document sharing, tamper detection, document security">
+	<meta name="author" content="CogniPrint">
+	<!-- Page Title -->
+    <title>{% block title %}CogniPrint - AI Cognitive Fingerprint | Document Sharing & Tamper Detection{% endblock %}</title>
+	<!-- Favicon Icon -->
+	<link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.png' %}">
+	<!-- Google Fonts Css-->
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&amp;display=swap" rel="stylesheet">
+	<!-- Bootstrap Css -->
+	<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+	<!-- SlickNav Css -->
+	<link href="{% static 'css/slicknav.min.css' %}" rel="stylesheet">
+	<!-- Swiper Css -->
+	<link rel="stylesheet" href="{% static 'css/swiper-bundle.min.css' %}">
+	<!-- Font Awesome Icon (CDN for guaranteed icon rendering) -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+	<!-- Animated Css -->
+	<link href="{% static 'css/animate.css' %}" rel="stylesheet">
+    <!-- Magnific Popup Core Css File -->
+	<link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+	<!-- Mouse Cursor Css File -->
+	<link rel="stylesheet" href="{% static 'css/mousecursor.css' %}">
+	<!-- Main Custom Css -->
+	<link href="{% static 'css/custom.css' %}" rel="stylesheet" media="screen">
+	{% block extra_css %}{% endblock %}
+    <style>
+        /* Fix for dropdowns being clipped by responsive tables */
+        .table-responsive {
+            overflow: visible !important;
+            position: relative;
+        }
+        .card {
+            overflow: visible !important;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        /* Ensure dropdown doesn't cause horizontal scroll while being visible */
+        @media (max-width: 991px) {
+            .table-responsive {
+                overflow-x: clip !important;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        .dots-btn {
+            text-decoration: none;
+            line-height: 1;
+            font-size: 18px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50% !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: #4b5563 !important;
+        }
+        .dots-btn:hover {
+            background: rgba(0,0,0,0.05);
+            color: #111827 !important;
+        }
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader Start -->
+	<div class="preloader">
+		<div class="loading-container">
+			<div class="loading"></div>
+			<div id="loading-icon"><img src="{% static 'images/loader.svg' %}" alt=""></div>
+		</div>
+	</div>
+	<!-- Preloader End -->
+
+    <!-- Header Start -->
+	<header class="main-header">
+		<div class="header-sticky">
+			<nav class="navbar navbar-expand-lg">
+				<div class="container-fluid">
+					<!-- Logo Start -->
+					<a class="navbar-brand" href="/">
+						<img src="{% static 'images/logo.svg' %}" alt="CogniPrint Logo">
+					</a>
+					<!-- Logo End -->
+
+					<!-- Main Menu Start -->
+					<div class="collapse navbar-collapse main-menu">
+                        <div class="nav-menu-wrapper">
+                            <ul class="navbar-nav mr-auto" id="menu">
+                                {% if not request.user.is_authenticated %}
+                                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/#contact">Contact</a></li>
+                                {% else %}
+                                    {% if request.user.role == 'admin' %}
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_manage_users' %}">Users</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_documents' %}">Documents</a></li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'admin_security_alerts' %}">
+                                            Alerts 
+                                            {% if unread_alerts_count > 0 %}
+                                                <span class="badge bg-danger rounded-pill" style="font-size: 10px; padding: 3px 6px;">{{ unread_alerts_count }}</span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'admin_retrieval_requests' %}">
+                                            Retrievals
+                                            {% if pending_retrieval_count > 0 %}
+                                                <span class="badge bg-warning rounded-pill" style="font-size: 10px; padding: 3px 6px;">{{ pending_retrieval_count }}</span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'admin_share_requests' %}">
+                                            Shares
+                                            {% if pending_share_count > 0 %}
+                                                <span class="badge bg-info rounded-pill" style="font-size: 10px; padding: 3px 6px;">{{ pending_share_count }}</span>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'admin_audit_logs' %}">Audit Logs</a></li>
+                                    {% else %}
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'user_dashboard' %}">Dashboard</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'user_upload_document' %}">Upload</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'user_my_documents' %}">My Documents</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'user_shared_with_me' %}">Shared With Me</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="{% url 'user_audit_logs' %}">Audit Logs</a></li>
+                                    {% endif %}
+                                {% endif %}
+                            </ul>
+                        </div>
+
+                        <!-- Header Btn Start -->
+                        <div class="header-btn">
+                            {% if request.user.is_authenticated %}
+                                <a class="btn-default" href="{% url 'logout' %}">Logout ({{ request.user.email }})</a>
+                            {% else %}
+                                <a class="btn-default" href="{% url 'login' %}">Login / Sign Up</a>
+                            {% endif %}
+                        </div>
+                        <!-- Header Btn End -->    
+					</div>
+					<!-- Main Menu End -->
+					<div class="navbar-toggle"></div>
+				</div>
+			</nav>
+			<div class="responsive-menu"></div>
+		</div>
+	</header>
+	<!-- Header End -->
+
+    <!-- Page Content Start -->
+    {% block content %}
+    {% endblock %}
+    <!-- Page Content End -->
+
+    <!-- Footer Start -->
+    {% block footer %}
+    <footer class="main-footer">
+        <!-- Footer Scrolling Ticker Box Start -->
+        <div class="footer-scrolling-ticker-box">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <!-- Footer Scrolling Ticker Start -->
+                        <div class="footer-scrolling-ticker">
+                            <!-- Scrolling Ticker Box Start -->
+                            <div class="scrolling-ticker-box">
+                                <!-- Scrolling Ticker Content Start -->
+                                <div class="scrolling-content">
+                                    <span><img src="{% static 'images/icon-asterisk.svg' %}" alt=""> Secure Your Documents</span>
+                                    <span><img src="{% static 'images/icon-asterisk.svg' %}" alt=""> AI Fingerprint Protection</span>
+                                    <span><img src="{% static 'images/icon-asterisk.svg' %}" alt=""> Tamper-Proof Sharing</span>
+                                    <span><img src="{% static 'images/icon-asterisk.svg' %}" alt=""> Verify Integrity Instantly</span>
+                                </div>
+                                <!-- Scrolling Ticker Content End -->
+            
+                                <!-- Scrolling Ticker Content Start -->
+                                <div class="scrolling-content">
+                                    <span><img src="{% static 'images/icon-asterisk.svg' %}" alt=""> Secure Your Documents</span>
+                                    <span><img src="{% static 'images/icon-asterisk.svg' %}" alt=""> AI Fingerprint Protection</span>
+                                    <span><img src="{% static 'images/icon-asterisk.svg' %}" alt=""> Tamper-Proof Sharing</span>
+                                    <span><img src="{% static 'images/icon-asterisk.svg' %}" alt=""> Verify Integrity Instantly</span>
+                                </div>
+                                <!-- Scrolling Ticker Content End -->
+                            </div>
+                            <!-- Scrolling Ticker Box End -->
+            
+                            <!-- Footer Contact Button Start -->
+                            <div class="footer-contact-btn">
+                                <a href="/#contact" class="schedule-btn">Get In Touch <img src="{% static 'images/arrow-white.svg' %}" alt=""></a>
+                            </div>
+                            <!-- Footer Contact Button End -->
+                        </div>
+                        <!-- Footer Scrolling Ticker End -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer Scrolling Ticker Box End -->
+        
+		<div class="container">
+            <div class="row">
+                <div class="col-xl-3 col-md-6">
+                    <!-- About Footer Start -->
+                    <div class="about-footer">
+                        <!-- Footer Logo Start -->
+                        <div class="footer-logo">
+                            <img src="{% static 'images/footer-logo.svg' %}" alt="CogniPrint">
+                        </div>
+                        <!-- Footer Logo End -->
+
+                        <!-- About Footer Content Start -->
+                        <div class="about-footer-content">
+                            <p>AI-powered cognitive fingerprinting for tamper-proof document sharing and verification.</p>
+                        </div>
+                        <!-- About Footer Content End -->
+                    </div>
+                    <!-- About Footer End -->
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <!-- Footer Quick Links Start -->
+                    <div class="footer-location footer-links">
+                        <h3>Quick Links</h3>
+                        <ul>
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/#about">About</a></li>
+                            <li><a href="/login">Login / Sign Up</a></li>
+                        </ul>
+                    </div>
+                    <!-- Footer Quick Links End -->
+                </div>
+
+                <div class="col-xl-3 col-md-6" id="contact">
+                    <!-- Footer Contact Start -->
+                    <div class="footer-contact footer-links">
+                        <h3>Contact Us</h3>
+                        <ul>
+                            <li><a href="tel:+919876543210">+91 98765 43210</a></li>
+                            <li><a href="mailto:support@cogniprint.ai">support@cogniprint.ai</a></li>
+                        </ul>
+                    </div>
+                    <!-- Footer Contact End -->
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <!-- Footer Newsletter Form Start -->
+                    <div class="footer-newsletter-form footer-links">
+                        <h3>Stay Updated</h3>
+                        <p>Get the latest updates on AI document security and new features.</p>
+                        <form id="newslettersForm" action="#" method="POST">
+                            <div class="form-group">
+                                <input type="email" name="mail" class="form-control" id="mail" placeholder="Email Address *" required>
+                                <button type="submit" class="newsletter-btn">Subscribe</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Footer Newsletter Form End -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Copyright Start -->
+        <div class="footer-copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <!-- Footer Copyright Box Start -->
+                        <div class="footer-copyright-box">
+                            <div class="footer-copyright-text">
+                                <p>Copyright © 2026 CogniPrint. All Rights Reserved.</p>
+                            </div>
+
+                            <!-- Footer Menu Start -->
+                            <div class="footer-menu">
+                                <ul>
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/#about">About</a></li>
+                                    <li><a href="/#contact">Contact</a></li>
+                                    <li><a href="/login">Login / Sign Up</a></li>
+                                </ul>
+                            </div>
+                            <!-- Footer Menu End -->
+                        </div>
+                        <!-- Footer Copyright  -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer Copyright End -->
+    </footer>
+    {% endblock %}
+    <!-- Footer End -->
+
+    <!-- Jquery Library File -->
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <!-- Circle Progress Js File -->
+    <script src="{% static 'js/circle-progress.min.js' %}"></script>
+    <!-- Bootstrap js file (Bundle includes Popper.js for dropdowns) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Validator js file -->
+    <script src="{% static 'js/validator.min.js' %}"></script>
+    <!-- SlickNav js file -->
+    <script src="{% static 'js/jquery.slicknav.js' %}"></script>
+    <!-- Swiper js file -->
+    <script src="{% static 'js/swiper-bundle.min.js' %}"></script>
+    <!-- Counter js file -->
+    <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'js/jquery.counterup.min.js' %}"></script>
+    <!-- Magnific js file -->
+    <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+    <!-- SmoothScroll -->
+    <script src="{% static 'js/SmoothScroll.js' %}"></script>
+    <!-- Parallax js -->
+    <script src="{% static 'js/parallaxie.js' %}"></script>
+    <!-- MagicCursor js file -->
+    <script src="{% static 'js/gsap.min.js' %}"></script>
+    <script src="{% static 'js/magiccursor.js' %}"></script>
+    <!-- Text Effect js file -->
+    <script src="{% static 'js/SplitText.min.js' %}"></script>
+    <script src="{% static 'js/ScrollTrigger.min.js' %}"></script>
+    <!-- YTPlayer js File -->
+    <script src="{% static 'js/jquery.mb.YTPlayer.min.js' %}"></script>
+    <!-- Wow js file -->
+    <script src="{% static 'js/wow.min.js' %}"></script>
+    <!-- Main Custom js file -->
+    <script src="{% static 'js/function.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

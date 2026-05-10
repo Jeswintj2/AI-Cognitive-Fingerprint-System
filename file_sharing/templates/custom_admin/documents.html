@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Documents - Admin{% endblock %}
+
+{% block content %}
+<div class="page-header wow fadeInUp" style="padding: 180px 0 50px; background: #f9fafb;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2 style="color: #111827;">Document <span>Management</span></h2>
+                <p style="color: #6b7280; font-size: 18px;">View all platform documents and manage user access permissions.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="documents-area" style="padding: 50px 0;">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert" style="border-radius: 10px;">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header bg-white border-bottom p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0" style="color: #111827;">All <span>Documents</span></h4>
+                    <span class="badge" style="background: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid #0d6efd; border-radius: 20px; padding: 10px 20px; font-weight: 600;">
+                        Total: {{ documents|length }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="vertical-align: middle;">
+                        <thead style="background: #f8f9fa;">
+                            <tr>
+                                <th style="padding: 20px; color: #374151; font-weight: 600;">Document</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600;">Owner</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600;">Status</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600;">Upload Date</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600;">Permissions</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600; text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc in documents %}
+                            <tr>
+                                <td style="padding: 20px;">
+                                    <span style="font-weight: 600; color: #111827;">{{ doc.title }}</span>
+                                    <br><small class="text-muted text-uppercase">{{ doc.file_type|slice:"1:" }} &bull; {{ doc.file_size|filesizeformat }}</small>
+                                </td>
+                                <td style="padding: 20px; color: #4b5563;">{{ doc.user.username }}</td>
+                                <td style="padding: 20px;">
+                                    {% if doc.status == 'Verified' %}
+                                        <span class="badge" style="background: rgba(25, 135, 84, 0.1); color: #198754; border: 1px solid #198754; border-radius: 20px; padding: 6px 12px; font-weight: 500;">Verified</span>
+                                    {% elif doc.status == 'Tampered' %}
+                                        <span class="badge" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid #dc3545; border-radius: 20px; padding: 6px 12px; font-weight: 500;">Tampered</span>
+                                    {% elif doc.status == 'Processed' %}
+                                        <span class="badge" style="background: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid #0d6efd; border-radius: 20px; padding: 6px 12px; font-weight: 500;">Processed</span>
+                                    {% else %}
+                                        <span class="badge" style="background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid #6b7280; border-radius: 20px; padding: 6px 12px; font-weight: 500;">{{ doc.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 20px; color: #6b7280; font-size: 14px;">{{ doc.uploaded_at|date:"M d, Y" }}</td>
+                                <td style="padding: 20px;">
+                                    <span class="badge" style="background: rgba(107, 114, 128, 0.08); color: #374151; border-radius: 20px; padding: 6px 12px; font-weight: 500;">
+                                        {{ doc.permissions.count }} user{{ doc.permissions.count|pluralize }}
+                                    </span>
+                                </td>
+                                <td style="padding: 20px; text-align: right;">
+                                    <a href="{% url 'admin_document_permissions' doc.id %}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 500;">
+                                        Manage Permissions
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center p-5 text-muted">No documents uploaded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block footer %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tamper Report - {{ doc.title }}{% endblock %}
+
+{% block content %}
+<div class="page-header wow fadeInUp" style="padding: 180px 0 50px; background: #f9fafb;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2 style="color: #111827;">Section-Level <span>Tamper Report</span></h2>
+                <p style="color: #6b7280; font-size: 18px;">Analysis for <strong>{{ doc.title }}</strong></p>
+                <div class="mt-4">
+                    <a href="{% url 'user_my_documents' %}" class="btn btn-outline-secondary" style="border-radius: 30px;">
+                        Back to Documents
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="tamper-report-area" style="padding: 50px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-header bg-white border-bottom p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0" style="color: #111827;">Analysis <span>Breadown</span></h4>
+                            <span class="badge" style="background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid #6b7280; border-radius: 20px; padding: 10px 20px; font-weight: 600;">
+                                Total Sections: {{ report|length }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0" style="vertical-align: middle;">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th style="padding: 20px; color: #374151; font-weight: 600;">Sec #</th>
+                                        <th style="padding: 20px; color: #374151; font-weight: 600;">Original Content Preview</th>
+                                        <th style="padding: 20px; color: #374151; font-weight: 600;">Semantic Similarity</th>
+                                        <th style="padding: 20px; color: #374151; font-weight: 600; text-align: center;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for sec in report %}
+                                    <tr>
+                                        <td style="padding: 20px; color: #6b7280; font-weight: 500;">#{{ sec.index|add:1 }}</td>
+                                        <td style="padding: 20px;">
+                                            <p class="mb-0" style="color: #4b5563; font-style: italic; font-size: 14px;">"{{ sec.text_preview }}"</p>
+                                        </td>
+                                        <td style="padding: 20px;">
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1" style="height: 8px; border-radius: 10px; background: #e5e7eb; margin-right: 15px;">
+                                                    <div class="progress-bar {% if sec.status == 'Tampered' %}bg-danger{% else %}bg-success{% endif %}" 
+                                                         style="width: {{ sec.similarity }}%; border-radius: 10px;"></div>
+                                                </div>
+                                                <span style="font-weight: 600; color: #111827; min-width: 50px;">{{ sec.similarity }}%</span>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 20px; text-align: center;">
+                                            {% if sec.status == 'Verified' %}
+                                                <span class="badge" style="background: rgba(25, 135, 84, 0.1); color: #198754; border: 1px solid #198754; border-radius: 20px; padding: 8px 15px; font-weight: 500;">
+                                                    Intact
+                                                </span>
+                                            {% elif sec.status == 'Tampered' %}
+                                                <span class="badge" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid #dc3545; border-radius: 20px; padding: 8px 15px; font-weight: 500;">
+                                                    Modified
+                                                </span>
+                                            {% else %}
+                                                <span class="badge" style="background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid #6b7280; border-radius: 20px; padding: 8px 15px; font-weight: 500;">
+                                                    {{ sec.status }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light p-4 text-center">
+                        <p class="mb-0 text-muted small">
+                            Section-level analysis utilizes TF-IDF vectorization with Cosine Similarity comparison (Threshold: 90.00%)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block footer %}{% endblock %}
+{% endblock %}

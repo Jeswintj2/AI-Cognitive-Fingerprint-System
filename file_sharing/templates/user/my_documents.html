@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Documents - CogniPrint{% endblock %}
+
+{% block content %}
+<div class="page-header wow fadeInUp" data-wow-delay="0.1s" style="padding: 180px 0 50px; background: #f9fafb; position: relative; z-index: 1;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="page-header-content text-center">
+                    <h2 style="color: #111827;">My <span>Documents</span></h2>
+                    <p style="color: #6b7280; font-size: 18px; margin-top: 10px;">Monitor the integrity and status of your uploaded fingerprints.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="user-dashboard-area" style="padding: 50px 0;">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 10px; border-left: 5px solid #198754;">
+                {% elif message.tags == 'warning' %}
+                    <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 10px; border-left: 5px solid #ffc107;">
+                {% else %}
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 10px; border-left: 5px solid #dc3545;">
+                {% endif %}
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row align-items-center mb-4">
+            <div class="col-md-8">
+                <h3 style="color: #111827; margin: 0; font-weight: 700;">My Uploaded Documents</h3>
+                <p style="color: #6b7280; font-size: 15px;">A clean view of all the files safely stored with a cognitive fingerprint.</p>
+            </div>
+            <div class="col-md-4 text-md-end text-start mt-3 mt-md-0">
+                <a href="{% url 'user_upload_document' %}" style="border-radius: 30px;" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                    Upload New
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 wow fadeInUp" style="border-radius: 15px; overflow: hidden;">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                        <thead style="background: #f3f4f6;">
+                            <tr>
+                                <th style="padding: 20px; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Document Title</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Fingerprint (SHA-256)</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Upload Date</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb;">Status</th>
+                                <th style="padding: 20px; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc in documents %}
+                            <tr>
+                                <td style="padding: 20px; border-bottom: 1px solid #e5e7eb; color: #111827; font-weight: 600;">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div style="background: rgba(13, 110, 253, 0.1); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0d6efd; font-weight: 700;">
+                                            &#128196;
+                                        </div>
+                                        <div>
+                                            {{ doc.title }}
+                                            <div style="font-size: 13px; color: #6b7280; font-weight: 400; margin-top: 3px;">
+                                                <span class="text-uppercase">{{ doc.file_type|slice:"1:" }}</span> &bull; {{ doc.file_size|filesizeformat }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 20px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">
+                                    <code style="background: #f1f5f9; padding: 6px 12px; border-radius: 6px; color: #475569; font-size: 13px;">{{ doc.sha256_hash|truncatechars:15 }}</code>
+                                </td>
+                                <td style="padding: 20px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">
+                                    {{ doc.uploaded_at|date:"M d, Y h:i A" }}
+                                </td>
+                                <td style="padding: 20px; border-bottom: 1px solid #e5e7eb;">
+                                    {% if not doc.cognitive_fingerprint %}
+                                        <span class="badge" style="background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid #6b7280; border-radius: 20px; padding: 8px 15px; font-weight: 500;">
+                                            Pending Processing
+                                        </span>
+                                    {% elif doc.status == 'Verified' %}
+                                        <span class="badge" style="background: rgba(25, 135, 84, 0.1); color: #198754; border: 1px solid #198754; border-radius: 20px; padding: 8px 15px; font-weight: 500;">
+                                            Verified
+                                        </span>
+                                    {% elif doc.status == 'Tampered' %}
+                                        <span class="badge" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid #dc3545; border-radius: 20px; padding: 8px 15px; font-weight: 500;">
+                                            Tampered
+                                        </span>
+                                    {% else %}
+                                        <span class="badge" style="background: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid #0d6efd; border-radius: 20px; padding: 8px 15px; font-weight: 500;">
+                                            {{ doc.status }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 20px; border-bottom: 1px solid #e5e7eb; text-align: right;">
+                                    <div class="d-flex justify-content-end align-items-center gap-2">
+                                        {% if doc.cognitive_fingerprint %}
+                                            <!-- Primary Actions -->
+                                            {% if doc.id in view_permitted_ids %}
+                                                <!-- <button class="btn btn-sm btn-outline-success px-3" style="border-radius: 10px; font-weight: 500;" title="View this document" onclick="toggleDocContent('mydoc-content-{{ doc.id }}', this)">
+                                                    View
+                                                </button> -->
+                                            {% endif %}
+                                            
+                                            <a href="{% url 'user_verify_document' doc.id %}" class="btn btn-sm btn-outline-primary px-3" style="border-radius: 10px; font-weight: 500;">
+                                                Verify Integrity
+                                            </a>
+
+                                            <!-- Status Indicators (Non-clickable Badges) -->
+                                            {% if doc.id in download_permitted_ids %}
+                                                {% if doc.retrieval_status == 'Pending' %}
+                                                    <span class="badge" style="background: rgba(255, 193, 7, 0.1); color: #856404; border: 1px solid #ffc107; border-radius: 20px; padding: 6px 15px; font-weight: 500;">Retrieval Pending</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge" style="background: rgba(108, 117, 125, 0.1); color: #6c757d; border: 1px solid #6c757d; border-radius: 20px; padding: 6px 15px; font-weight: 500;">Awaiting Approval</span>
+                                            {% endif %}
+
+                                            <!-- Secondary Actions Dropdown -->
+                                            <div class="dropdown">
+                                                <button class="btn btn-link dots-btn" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="More Actions">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2" style="border-radius: 12px; font-size: 14px; min-width: 170px;">
+                                                    {% if doc.status == 'Tampered' %}
+                                                        <li><a class="dropdown-item py-2" href="{% url 'user_tamper_report' doc.id %}"><i class="fas fa-exclamation-triangle me-2 text-danger"></i> Tamper Report</a></li>
+                                                        <li><a class="dropdown-item py-2" href="{% url 'user_reupload_document' doc.id %}"><i class="fas fa-tools me-2 text-warning"></i> Re-upload (Repair)</a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                    {% endif %}
+
+                                                    {% if doc.id in modify_permitted_ids %}
+                                                        <li><a class="dropdown-item py-2" href="{% url 'user_modify_document' doc.id %}"><i class="fas fa-edit me-2 text-info"></i> Update Version</a></li>
+                                                    {% endif %}
+
+                                                    {% if doc.id in share_permitted_ids %}
+                                                        <li><a class="dropdown-item py-2" href="{% url 'user_share_document' doc.id %}"><i class="fas fa-share-alt me-2"></i> Share</a></li>
+                                                    {% endif %}
+
+                                                    {% if doc.id in download_permitted_ids %}
+                                                        {% if doc.retrieval_status == 'Approved' %}
+                                                            <li><a class="dropdown-item py-2 text-primary" href="{% url 'secure_download_document' doc.id %}"><i class="fas fa-download me-2"></i> Download</a></li>
+                                                        {% elif doc.retrieval_status == 'Rejected' %}
+                                                            <li><a class="dropdown-item py-2 text-danger" href="{% url 'user_request_retrieval' doc.id %}" onclick="return confirm('Your previous retrieval request was rejected. Submit a new request?')"><i class="fas fa-redo me-2"></i> Request Retrieval</a></li>
+                                                        {% elif doc.retrieval_status != 'Pending' %}
+                                                            <li><a class="dropdown-item py-2" href="{% url 'user_request_retrieval' doc.id %}"><i class="fas fa-key me-2 text-info"></i> Request Retrieval</a></li>
+                                                        {% endif %}
+                                                    {% endif %}
+
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <form method="post" action="{% url 'user_delete_document' doc.id %}" onsubmit="return confirm('Are you sure you want to permanently delete this document? This action cannot be undone.');">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="dropdown-item py-2 text-danger w-100 text-start border-0 bg-transparent"><i class="fas fa-trash-alt me-2"></i> Delete</button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        {% else %}
+                                            <span class="badge" style="background: rgba(108, 117, 125, 0.1); color: #6c757d; border: 1px solid #6c757d; border-radius: 20px; padding: 8px 15px; font-weight: 500;">Processing...</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Inline document content row (hidden by default) -->
+                            {% if doc.id in view_permitted_ids %}
+                            <tr id="mydoc-content-{{ doc.id }}" style="display: none;">
+                                <td colspan="5" style="padding: 0; border-bottom: 1px solid #e5e7eb;">
+                                    <div style="background: #f9fafb; border-top: 2px solid #6366f1; padding: 24px 32px; margin: 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                            <h6 style="color: #111827; font-weight: 700; margin: 0;">{{ doc.title }} — Document Content</h6>
+                                            <button class="btn btn-sm btn-outline-secondary" style="border-radius: 8px; font-size: 12px; padding: 4px 12px;" onclick="toggleDocContent('mydoc-content-{{ doc.id }}')">Close</button>
+                                        </div>
+                                        <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; max-height: 400px; overflow-y: auto; font-family: 'Georgia', 'Times New Roman', serif; font-size: 15px; line-height: 1.8; color: #1e293b; white-space: pre-wrap; word-wrap: break-word;">{{ doc.text_content }}</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center" style="padding: 60px 40px; color: #6b7280;">
+                                    <div style="background: rgba(13, 110, 253, 0.05); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0d6efd; margin: 0 auto 15px; font-size: 28px;">
+                                        &#128194;
+                                    </div>
+                                    <h5 style="color: #374151; font-weight: 600;">No documents securely stored yet.</h5>
+                                    <p style="margin-bottom: 20px; font-size: 15px;">Upload your first file to generate its cognitive fingerprint.</p>
+                                    <a href="{% url 'user_upload_document' %}" style="border-radius: 30px;" class="btn btn-primary">
+                                        Upload First Document
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDocContent(rowId, btn) {
+    var row = document.getElementById(rowId);
+    if (row.style.display === 'none') {
+        row.style.display = 'table-row';
+        if (btn) btn.textContent = 'Hide';
+    } else {
+        row.style.display = 'none';
+        if (btn) btn.textContent = 'View';
+    }
+}
+</script>
+
+{% endblock %}
+
+{% block footer %}{% endblock %}

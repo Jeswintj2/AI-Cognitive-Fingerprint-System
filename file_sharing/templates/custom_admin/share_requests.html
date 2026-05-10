@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Share Requests - Admin{% endblock %}
+
+{% block content %}
+<div class="page-header wow fadeInUp" style="padding: 180px 0 50px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -50%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%); border-radius: 50%;"></div>
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2 style="color: #f1f5f9; font-weight: 800; font-size: 36px;">Share <span style="background: linear-gradient(135deg, #6366f1, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Requests</span></h2>
+                <p style="color: rgba(255,255,255,0.5); font-size: 16px; margin-top: 8px;">Review and manage document sharing requests from owners</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section style="padding: 50px 0; background: #f8fafc;">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert" style="border-radius: 14px; border: none; font-weight: 500;">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card shadow-sm border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header bg-white border-bottom p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0" style="color: #111827; font-weight: 700;">All <span style="color: #6366f1;">Share Requests</span></h4>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="vertical-align: middle;">
+                        <thead style="background: #f8f9fa;">
+                            <tr>
+                                <th style="padding: 18px 20px; color: #374151; font-weight: 600;">Document</th>
+                                <th style="padding: 18px 20px; color: #374151; font-weight: 600;">From (Owner)</th>
+                                <th style="padding: 18px 20px; color: #374151; font-weight: 600;">To (Target)</th>
+                                <th style="padding: 18px 20px; color: #374151; font-weight: 600;">Requested Permissions</th>
+                                <th style="padding: 18px 20px; color: #374151; font-weight: 600;">Status</th>
+                                <th style="padding: 18px 20px; color: #374151; font-weight: 600;">Requested At</th>
+                                <th style="padding: 18px 20px; color: #374151; font-weight: 600; text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sr in share_requests %}
+                            <tr>
+                                <td style="padding: 18px 20px;">
+                                    <span style="font-weight: 600; color: #111827;">{{ sr.document.title }}</span>
+                                    <br><small class="text-muted text-uppercase">{{ sr.document.file_type|slice:"1:" }}</small>
+                                </td>
+                                <td style="padding: 18px 20px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #059669, #10b981); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; text-transform: uppercase;">
+                                            {{ sr.requested_by.username|first }}
+                                        </div>
+                                        <div>
+                                            <span style="font-weight: 600; color: #1e293b;">{{ sr.requested_by.username }}</span>
+                                            <br><small class="text-muted">{{ sr.requested_by.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 18px 20px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; text-transform: uppercase;">
+                                            {{ sr.target_user.username|first }}
+                                        </div>
+                                        <div>
+                                            <span style="font-weight: 600; color: #1e293b;">{{ sr.target_user.username }}</span>
+                                            <br><small class="text-muted">{{ sr.target_user.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 18px 20px;">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <!-- {% if sr.can_view %}
+                                            <span class="badge" style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid #059669; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600;">&#128065; View</span>
+                                        {% endif %} -->
+                                        {% if sr.can_download %}
+                                            <span class="badge" style="background: rgba(13,110,253,0.1); color: #0d6efd; border: 1px solid #0d6efd; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600;">&#128229; Download</span>
+                                        {% endif %}
+                                        {% if sr.can_edit %}
+                                            <span class="badge" style="background: rgba(245,158,11,0.1); color: #d97706; border: 1px solid #d97706; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600;">&#9999; Edit</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td style="padding: 18px 20px;">
+                                    {% if sr.status == 'Pending' %}
+                                        <span class="badge" style="background: rgba(245,158,11,0.1); color: #d97706; border: 1px solid #d97706; border-radius: 20px; padding: 6px 14px; font-weight: 600;">
+                                            &#9200; Pending
+                                        </span>
+                                    {% elif sr.status == 'Approved' %}
+                                        <span class="badge" style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid #059669; border-radius: 20px; padding: 6px 14px; font-weight: 600;">
+                                            &#10004; Approved
+                                        </span>
+                                    {% elif sr.status == 'Rejected' %}
+                                        <span class="badge" style="background: rgba(220,53,69,0.1); color: #dc3545; border: 1px solid #dc3545; border-radius: 20px; padding: 6px 14px; font-weight: 600;">
+                                            &#10006; Rejected
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 18px 20px; color: #6b7280; font-size: 14px;">
+                                    {{ sr.requested_at|date:"M d, Y h:i A" }}
+                                </td>
+                                <td style="padding: 18px 20px; text-align: right;">
+                                    {% if sr.status == 'Pending' %}
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="{% url 'admin_review_share' sr.id 'approve' %}" class="btn btn-sm" style="background: linear-gradient(135deg, #059669, #10b981); color: #fff; border: none; border-radius: 10px; font-weight: 600; padding: 8px 18px;" onclick="return confirm('Approve this share request? Permissions will be automatically granted to the target user.')">
+                                                Approve
+                                            </a>
+                                            <a href="{% url 'admin_review_share' sr.id 'reject' %}" class="btn btn-sm" style="background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; border: none; border-radius: 10px; font-weight: 600; padding: 8px 18px;" onclick="return confirm('Reject this share request?')">
+                                                Reject
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted" style="font-size: 13px; font-style: italic;">
+                                            {% if sr.reviewed_by %}Reviewed by {{ sr.reviewed_by.username }}{% else %}Reviewed{% endif %}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center" style="padding: 60px 40px; color: #6b7280;">
+                                    <div style="background: rgba(99,102,241,0.06); width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">
+                                        &#128101;
+                                    </div>
+                                    <h5 style="color: #374151; font-weight: 600;">No share requests</h5>
+                                    <p style="margin-bottom: 0; font-size: 15px;">Document sharing requests from users will appear here.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block footer %}{% endblock %}
+{% endblock %}
